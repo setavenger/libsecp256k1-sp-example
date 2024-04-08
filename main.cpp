@@ -13,13 +13,11 @@ const std::string tweak2 = "03b896246eb81158a1bd8929c30e7a480ef78ecdbc53990cecc0
 
 std::vector<unsigned char> hexToBytes(const std::string& hex) {
     std::vector<unsigned char> bytes;
-
     for (size_t i = 0; i < hex.length(); i += 2) {
         std::string byteString = hex.substr(i, 2);
         unsigned char byte = static_cast<unsigned char>(strtol(byteString.c_str(), nullptr, 16));
         bytes.push_back(byte);
     }
-
     return bytes;
 }
 
@@ -51,12 +49,16 @@ int main() {
         }
         unsigned char ecdhSecret; // will be ecdh after multiplication
 
+        // the secret is produced and no error is thrown
         if (!secp256k1_silentpayments_create_shared_secret(ctx, &ecdhSecret, &public_component, scanPrivBytes.data(), NULL)) {
             secp256k1_context_destroy(ctx);
-            throw std::runtime_error("Failed to parse tweak");
+            throw std::runtime_error("Failed to compute shared secret");
         }
+        // the secret is written to the terminal but then the program freezes
         std::cout << "ecdh secret: " << bytesToHexChar(&ecdhSecret, 33) << std::endl;
+        // the next iteration of the loop never starts and CPU is fully maxed
     }
 
+    secp256k1_context_destroy(ctx); // Ensure context is destroyed after loop
     return 0;
 }
