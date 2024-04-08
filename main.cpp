@@ -27,10 +27,12 @@ int main() {
  * Elapsed time: 82.1637 seconds
  * ~21% reduction with simple implementation
  *
+ * Run: 2
  * Elapsed time: 67.2389 seconds
  * Elapsed time: 79.3701 seconds
  * ~15% reduction with simple implementation
  *
+ * Run: 3
  * Elapsed time: 66.0771 seconds
  * Elapsed time: 78.9822 seconds
  * ~16% reduction with simple implementation
