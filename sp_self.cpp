@@ -101,7 +101,7 @@ std::vector<std::vector<unsigned char>> getPubKeysBasedOnTweaks(
 //        std::cout << "shared secret: " << bytesToHex(serializePubkey(ctx, ecdhSecret)) << std::endl;
 
         // Compute tN - This part might need a separate hashing function, potentially from another library if libsecp256k1 does not provide what's needed
-        std::vector<unsigned char> tN = computeTN(ctx, ecdhSecret, n);
+        std::vector<unsigned char> tN = computeTN(ctx, ecdhSecret, n); // change tN to tK
 
         // Perform the second tweak multiplication using the base point G
         // tN * G

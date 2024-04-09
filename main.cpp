@@ -23,14 +23,13 @@ void runBenchAll(){
 
 
 int main() {
+//    runBenchAll();
 
-
-//    compareResultsSelf(scanPrivHex, spendPubHex, testVectorShort, labelsHex);
-//    compareResultsModule(scanPrivHex, spendPubHex, testVectorShort, labelsHex);
+    compareResultsSelf(scanPrivHex, spendPubHex, testVectorShort, labelsHex);
+    compareResultsModule(scanPrivHex, spendPubHex, testVectorShort, labelsHex);
 
 //    compareResultsSelf(scanPrivHex, spendPubHex, tweakHexesVector, labelsHex);
 //    compareResultsModule(scanPrivHex, spendPubHex, tweakHexesVector, labelsHex);
 
-    runBenchAll();
     return 0;
 }

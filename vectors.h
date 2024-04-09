@@ -8,7 +8,13 @@
 #include "vector"
 
 const std::vector<std::string> testVectorShort = {"0277033d715c569ba5684ef962c4281d0bea6be2c7eef2322455724e73adf75517",
-                                                  "02eeebb6c3119e0182dbaa32b2b81294759432fe0190f54533f9cf4db32a820996"};
+                                                  "02eeebb6c3119e0182dbaa32b2b81294759432fe0190f54533f9cf4db32a820996",
+                                                  "02ebf78f6318ef0c547d6a690fa9e99d8a8524a77a6f8380b5d28bd93650d14925",
+                                                  "024721835ea30cc83dc93340f76f3f5c129b3f882023d33366b003853865897c0d",
+                                                  "0342879e590e246df771bcfdc9fbdf6baf37abd5a7be21813c0a1e399fc484df6e",
+                                                  "02cec31c174c05a037b4ff4a5c00fd2b859e0b4c8033bd14d0f15ed6788ffc7e46",
+                                                  "03299a6421765a6e0a7fefb687346946e0211209dbd3decde91fab3907e480f92c",
+                                                  "02d5cee95b8b2a9734a67f9e41a194515f3aa72ce3b0878590a14abab37cb5e851"};
 
 const std::vector<std::string> tweakHexesVector = {"0277033d715c569ba5684ef962c4281d0bea6be2c7eef2322455724e73adf75517",
                                                    "02eeebb6c3119e0182dbaa32b2b81294759432fe0190f54533f9cf4db32a820996",
