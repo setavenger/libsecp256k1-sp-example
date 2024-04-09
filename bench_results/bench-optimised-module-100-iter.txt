@@ -1,0 +1,55 @@
+Bare Bones:
+Elapsed time: 35.1922 seconds
+SP Module :
+Elapsed time: 35.6651 seconds
+Bare Bones:
+Elapsed time: 34.489 seconds
+SP Module :
+Elapsed time: 34.3171 seconds
+Bare Bones:
+Elapsed time: 33.3946 seconds
+SP Module :
+Elapsed time: 34.6884 seconds
+Bare Bones:
+Elapsed time: 33.8259 seconds
+SP Module :
+Elapsed time: 34.8846 seconds
+Bare Bones:
+Elapsed time: 33.7457 seconds
+SP Module :
+Elapsed time: 34.9871 seconds
+Bare Bones:
+Elapsed time: 33.6253 seconds
+SP Module :
+Elapsed time: 34.5504 seconds
+Bare Bones:
+Elapsed time: 33.5926 seconds
+SP Module :
+Elapsed time: 34.5159 seconds
+Bare Bones:
+Elapsed time: 34.7545 seconds
+SP Module :
+Elapsed time: 35.0915 seconds
+Bare Bones:
+Elapsed time: 33.8132 seconds
+SP Module :
+Elapsed time: 35.2698 seconds
+Bare Bones:
+Elapsed time: 34.1337 seconds
+SP Module :
+Elapsed time: 35.7707 seconds
+
+
+========
+
+For "Bare Bones":
+    Mean: 34.0567 seconds
+    Median: 33.8196 seconds
+    Standard Deviation: 0.5494 seconds
+
+For "SP Module":
+    Mean: 34.9741 seconds
+    Median: 34.9359 seconds
+    Standard Deviation: 0.4609 seconds
+
+Bare bones is ~3% faster. Compared to ~12% faster with unoptimised SP-Module (bench-100-iter.txt)
