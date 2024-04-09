@@ -1,0 +1,53 @@
+Bare Bones:
+Elapsed time: 32.6839 seconds
+SP Module :
+Elapsed time: 37.871 seconds
+Bare Bones:
+Elapsed time: 34.3319 seconds
+SP Module :
+Elapsed time: 37.96 seconds
+Bare Bones:
+Elapsed time: 33.1654 seconds
+SP Module :
+Elapsed time: 37.6958 seconds
+Bare Bones:
+Elapsed time: 33.5006 seconds
+SP Module :
+Elapsed time: 41.2896 seconds
+Bare Bones:
+Elapsed time: 35.4116 seconds
+SP Module :
+Elapsed time: 38.4633 seconds
+Bare Bones:
+Elapsed time: 34.2435 seconds
+SP Module :
+Elapsed time: 39.4862 seconds
+Bare Bones:
+Elapsed time: 33.8413 seconds
+SP Module :
+Elapsed time: 38.2162 seconds
+Bare Bones:
+Elapsed time: 33.117 seconds
+SP Module :
+Elapsed time: 38.9808 seconds
+Bare Bones:
+Elapsed time: 33.9643 seconds
+SP Module :
+Elapsed time: 38.8197 seconds
+Bare Bones:
+Elapsed time: 33.4707 seconds
+SP Module :
+Elapsed time: 38.5659 seconds
+
+========
+For "Bare Bones":
+    Mean: 33.7730 seconds
+    Median: 33.6710 seconds
+    Standard Deviation: 0.7356 seconds
+
+For "SP Module":
+    Mean: 38.7348 seconds
+    Median: 38.5146 seconds
+    Standard Deviation: 0.9978 seconds
+
+Bare bones ~12% faster

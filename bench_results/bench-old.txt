@@ -1,0 +1,48 @@
+/*
+ * ==== 200 Iterations ====
+ * RUN: 1 - ran bare implementation first
+ * Elapsed time: 65.0256 seconds
+ * Elapsed time: 82.1637 seconds
+ * ~21% reduction with bare implementation
+ *
+ * RUN: 2 - ran bare implementation first
+ * Elapsed time: 67.2389 seconds
+ * Elapsed time: 79.3701 seconds
+ * ~15% reduction with bare implementation
+ *
+ * RUN: 3 - ran bare implementation first
+ * Elapsed time: 66.0771 seconds
+ * Elapsed time: 78.9822 seconds
+ * ~16% reduction with bare implementation
+ *
+ * RUN: 4 - stripped version - ran bare implementation first
+ * Elapsed time: 101.279 seconds
+ * Elapsed time: 106.404 seconds
+ * ~5% reduction with bare implementation
+ *
+ * RUN: 5 - stripped version - ran bare implementation first
+ * Elapsed time: 85.9595 seconds
+ * Elapsed time: 106.031 seconds
+ * ~19% reduction with bare implementation
+ *
+ * RUN: 6 - stripped version - ran bare implementation first
+ * Elapsed time: 121.692 seconds
+ * Elapsed time: 118.968 seconds
+ * ~2% increase with bare implementation
+ *
+ * RUN: 7 - stripped version - ran bare implementation first
+ * Elapsed time: 80.6861 seconds
+ * Elapsed time: 77.4668 seconds
+ * ~4% increase with bare implementation
+ *
+ * RUN: 8 - stripped version - ran bare implementation second
+ * Elapsed time: 70.0455 seconds
+ * Elapsed time: 78.8232 seconds
+ * ~11% reduction with bare implementation
+ *
+ * ==== 1000 Iterations ====
+ * RUN: 1 - stripped version - ran bare implementation second || ran both benchmarks in different compiles || High parallel CPU load
+ * Elapsed time: 363.82 seconds
+ * Elapsed time: 384.694 seconds
+ * ~5% reduction with bare implementation
+ * */

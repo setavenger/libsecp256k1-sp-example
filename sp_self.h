@@ -8,7 +8,8 @@
 void runBenchSelf(const std::string &scanPrivHex,
               const std::string &spendPubHex,
               const std::vector<std::string> &tweakHexes,
-              const std::vector<std::string> &labelHexes);
+              const std::vector<std::string> &labelHexes,
+              const int &iterations);
 
 void compareResultsSelf(const std::string& scanPrivHex,
                     const std::string& spendPubHex,

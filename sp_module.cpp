@@ -12,7 +12,7 @@
 #include <iostream>
 #include "utils.h"
 
-std::vector<secp256k1_pubkey> getPubKeysBasedOnTweaks(
+std::vector<std::vector<unsigned char>> getPubKeysBasedOnTweaks(
         const std::string &scanPrivHex,
         const std::string &spendPubHex,
         const std::vector<std::string> &tweakHexes,
@@ -21,7 +21,7 @@ std::vector<secp256k1_pubkey> getPubKeysBasedOnTweaks(
     secp256k1_context *ctx = secp256k1_context_create(SECP256K1_CONTEXT_VERIFY);
     std::vector<unsigned char> scanPrivBytes = hexToBytes(scanPrivHex);
     std::vector<unsigned char> spendPubBytes = hexToBytes(spendPubHex);
-    std::vector<secp256k1_pubkey> resultKeys;
+    std::vector<std::vector<unsigned char>> resultKeys;
 
     std::vector<secp256k1_pubkey> labelsKeys;
 
@@ -72,19 +72,18 @@ std::vector<secp256k1_pubkey> getPubKeysBasedOnTweaks(
             throw std::runtime_error("Failed to compute output pubkey");
         }
 
-        unsigned char P_output_with_parity[33]; // 1 byte for parity + 32 bytes for the x-only pubkey
-        P_output_with_parity[0] = 0x02; // Prepend 0x02 for even Y coordinate; they should always be even
+        unsigned char P_output_bytes[33] = {}; ;
 
-        if (!secp256k1_xonly_pubkey_serialize(ctx, P_output_with_parity + 1, &P_output_xonly)) {
+        if (!secp256k1_xonly_pubkey_serialize(ctx, P_output_bytes, &P_output_xonly)) {
             secp256k1_context_destroy(ctx);
             throw std::runtime_error("Failed to serialize output pub key x-only");
         }
 
-        secp256k1_pubkey P_output; // P_output_xonly with parity indication
-        if (!secp256k1_ec_pubkey_parse(ctx, &P_output, P_output_with_parity, sizeof P_output_with_parity)) {
-            secp256k1_context_destroy(ctx);
-            throw std::runtime_error("Failed to parse spend pubkey");
-        }
+//        secp256k1_pubkey P_output; // P_output_xonly with parity indication
+//        if (!secp256k1_ec_pubkey_parse(ctx, &P_output, P_output_bytes, sizeof P_output_bytes)) {
+//            secp256k1_context_destroy(ctx);
+//            throw std::runtime_error("Failed to parse spend pubkey");
+//        }
 
         // compute labels
 //        for (const secp256k1_pubkey &labelKey: labelsKeys) {
@@ -98,7 +97,9 @@ std::vector<secp256k1_pubkey> getPubKeysBasedOnTweaks(
 //            resultKeys.push_back(labeledPk);
 //        }
 
-        resultKeys.push_back(P_output);
+        std::vector<unsigned char> pubkeyVec(P_output_bytes, P_output_bytes + 32);
+
+        resultKeys.push_back(pubkeyVec);
     }
 
     secp256k1_context_destroy(ctx);
@@ -109,11 +110,13 @@ std::vector<secp256k1_pubkey> getPubKeysBasedOnTweaks(
 void runBenchModule(const std::string &scanPrivHex,
                   const std::string &spendPubHex,
                   const std::vector<std::string> &tweakHexes,
-                  const std::vector<std::string> &labelHexes) {
+                  const std::vector<std::string> &labelHexes,
+                  const int &iterations) {
+
     auto start = std::chrono::high_resolution_clock::now(); // Start the timer
 
-    for (int i = 0; i < 200; ++i) {
-        std::vector<secp256k1_pubkey> pubKeys = getPubKeysBasedOnTweaks(scanPrivHex, spendPubHex, tweakHexes,
+    for (int i = 0; i < iterations; ++i) {
+        std::vector<std::vector<unsigned char>> pubKeys = getPubKeysBasedOnTweaks(scanPrivHex, spendPubHex, tweakHexes,
                                                                         labelHexes);
     }
 
@@ -128,11 +131,9 @@ void compareResultsModule(const std::string &scanPrivHex,
                           const std::vector<std::string> &tweakHexes,
                           const std::vector<std::string> &labelHexes) {
 
-    std::vector<secp256k1_pubkey> pubKeys = getPubKeysBasedOnTweaks(scanPrivHex, spendPubHex, tweakHexes, labelHexes);
+    std::vector<std::vector<unsigned char>> pubKeys = getPubKeysBasedOnTweaks(scanPrivHex, spendPubHex, tweakHexes, labelHexes);
 
-    secp256k1_context *ctx = secp256k1_context_create(SECP256K1_CONTEXT_VERIFY);
-
-    for (const secp256k1_pubkey pubkey: pubKeys) {
-        std::cout << bytesToHex(serializePubkeyXOnly(ctx, pubkey)) << std::endl;
+    for (const std::vector<unsigned char>& pubkey: pubKeys) {
+        std::cout << bytesToHex(pubkey) << std::endl;
     }
 }

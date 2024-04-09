@@ -17,6 +17,9 @@ std::vector<unsigned char> serializePubkey(const secp256k1_context *ctx, const s
     std::vector<unsigned char> output(33);  // 33 bytes for a compressed public key
     size_t outputSize = output.size();
     secp256k1_ec_pubkey_serialize(ctx, output.data(), &outputSize, &pubkey, SECP256K1_EC_COMPRESSED);
+    if (!secp256k1_ec_pubkey_serialize(ctx, output.data(), &outputSize, &pubkey, SECP256K1_EC_COMPRESSED)) {
+        throw std::runtime_error("failed to serialize x-only");
+    }
     output.resize(outputSize);
 
     // flip comments for x-only
@@ -29,7 +32,9 @@ std::vector<unsigned char> serializePubkey(const secp256k1_context *ctx, const s
 std::vector<unsigned char> serializePubkeyXOnly(const secp256k1_context *ctx, const secp256k1_pubkey &pubkey) {
     std::vector<unsigned char> output(33);  // 33 bytes for a compressed public key
     size_t outputSize = output.size();
-    secp256k1_ec_pubkey_serialize(ctx, output.data(), &outputSize, &pubkey, SECP256K1_EC_COMPRESSED);
+    if (!secp256k1_ec_pubkey_serialize(ctx, output.data(), &outputSize, &pubkey, SECP256K1_EC_COMPRESSED)) {
+        throw std::runtime_error("failed to serialize x-only");
+    }
     output.resize(outputSize);
 
     // flip comments for x-only
