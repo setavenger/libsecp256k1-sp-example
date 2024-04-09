@@ -53,3 +53,17 @@ For "SP Module":
     Standard Deviation: 0.4609 seconds
 
 Bare bones is ~3% faster. Compared to ~12% faster with unoptimised SP-Module (bench-100-iter.txt)
+
+----
+Compares the benchmarking results from `bench-100-iter.txt` and `bench-optimised-module-100-iter.txt`.
+Both had 10 runs with 100 iterations each. One iteration was generating pub keys from 861 tweaks.
+
+Optimised Implementation:
+    Mean: 34.9741 seconds
+    Median: 34.9358 seconds
+    Standard Deviation: 0.4609 seconds
+
+Base Implementation:
+    Mean: 38.7348 seconds
+    Median: 38.5146 seconds
+    Standard Deviation: 0.9978 seconds
