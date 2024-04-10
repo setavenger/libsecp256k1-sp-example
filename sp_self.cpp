@@ -11,15 +11,16 @@
 #include "utils.h"
 
 // Function for tagged hashing, similar to what you have in computeTN
-std::vector<unsigned char> taggedHash(secp256k1_context* ctx, const std::string& tag, const std::vector<unsigned char>& data) {
+std::vector<unsigned char>
+taggedHash(secp256k1_context *ctx, const std::string &tag, const std::vector<unsigned char> &data) {
     std::vector<unsigned char> hash32(32);  // secp256k1_tagged_sha256 produces a 32-byte hash
 
     // Convert the tag to a const unsigned char* for secp256k1_tagged_sha256
-    const unsigned char* tagPtr = reinterpret_cast<const unsigned char*>(tag.data());
+    const unsigned char *tagPtr = reinterpret_cast<const unsigned char *>(tag.data());
     size_t taglen = tag.length();
 
     // Convert the data vector to a const unsigned char* for secp256k1_tagged_sha256
-    const unsigned char* dataPtr = data.data();
+    const unsigned char *dataPtr = data.data();
     size_t msglen = data.size();
 
     // Perform the tagged hash operation
@@ -42,7 +43,7 @@ std::vector<unsigned char> ser32UintBE(uint32_t n) {
 }
 
 // Adjusted computeTN function that takes a secp256k1_pubkey
-std::vector<unsigned char> computeTN(const secp256k1_context* ctx, const secp256k1_pubkey& pubkey, uint32_t n) {
+std::vector<unsigned char> computeTN(const secp256k1_context *ctx, const secp256k1_pubkey &pubkey, uint32_t n) {
     // Serialize the public key
     std::vector<unsigned char> serializedPubkey = serializePubkey(ctx, pubkey);
 
@@ -54,25 +55,25 @@ std::vector<unsigned char> computeTN(const secp256k1_context* ctx, const secp256
     std::string tag = "BIP0352/SharedSecret";  // Define the tag you need for hashing
 
     // Perform the tagged hash with the tag "BIP0352/SharedSecret"
-    return taggedHash(const_cast<secp256k1_context*>(ctx), tag, data);
+    return taggedHash(const_cast<secp256k1_context *>(ctx), tag, data);
 }
 
 
 std::vector<std::vector<unsigned char>> getPubKeysBasedOnTweaks(
-        const std::string& scanPrivHex,
-        const std::string& spendPubHex,
-        const std::vector<std::string>& tweakHexes,
-        const std::vector<std::string>& labelHexes,
+        const std::string &scanPrivHex,
+        const std::string &spendPubHex,
+        const std::vector<std::string> &tweakHexes,
+        const std::vector<std::string> &labelHexes,
         uint32_t n) {
 
     secp256k1_context *ctx = secp256k1_context_create(SECP256K1_CONTEXT_VERIFY);
     std::vector<unsigned char> scanPrivBytes = hexToBytes(scanPrivHex);
     std::vector<unsigned char> spendPubBytes = hexToBytes(spendPubHex);
-    std::vector< std::vector<unsigned char>> resultKeys;
+    std::vector<std::vector<unsigned char>> resultKeys;
 
     std::vector<secp256k1_pubkey> labelsKeys;
 
-    for (const std::string& labelHex : labelHexes) {
+    for (const std::string &labelHex: labelHexes) {
         std::vector<unsigned char> labelBytes = hexToBytes(labelHex);
 
         secp256k1_pubkey labelKey;
@@ -83,7 +84,7 @@ std::vector<std::vector<unsigned char>> getPubKeysBasedOnTweaks(
         labelsKeys.push_back(labelKey);
     }
 
-    for (const std::string& tweakHex : tweakHexes) {
+    for (const std::string &tweakHex: tweakHexes) {
         std::vector<unsigned char> tweakBytes = hexToBytes(tweakHex);
         // ... perform operations for each tweak ...
 
@@ -153,16 +154,65 @@ std::vector<std::vector<unsigned char>> getPubKeysBasedOnTweaks(
     return resultKeys;
 }
 
+std::vector<std::vector<unsigned char>> getSharedSecretsBasedOnTweaksSelf(
+        const std::string &scanPrivHex,
+        const std::string &spendPubHex,
+        const std::vector<std::string> &tweakHexes,
+        const std::vector<std::string> &labelHexes) {
+
+    secp256k1_context *ctx = secp256k1_context_create(SECP256K1_CONTEXT_VERIFY);
+    std::vector<unsigned char> scanPrivBytes = hexToBytes(scanPrivHex);
+    std::vector<unsigned char> spendPubBytes = hexToBytes(spendPubHex);
+    std::vector<std::vector<unsigned char>> resultKeys;
+
+    std::vector<secp256k1_pubkey> labelsKeys;
+
+    for (const std::string &labelHex: labelHexes) {
+        std::vector<unsigned char> labelBytes = hexToBytes(labelHex);
+
+        secp256k1_pubkey labelKey;
+        if (!secp256k1_ec_pubkey_parse(ctx, &labelKey, labelBytes.data(), labelBytes.size())) {
+            secp256k1_context_destroy(ctx);
+            throw std::runtime_error("Failed to parse public key");
+        }
+        labelsKeys.push_back(labelKey);
+    }
+
+    for (const std::string &tweakHex: tweakHexes) {
+        std::vector<unsigned char> tweakBytes = hexToBytes(tweakHex);
+        // ... perform operations for each tweak ...
+
+        secp256k1_pubkey ecdhSecret; // will be ecdh after multiplication
+
+        if (!secp256k1_ec_pubkey_parse(ctx, &ecdhSecret, tweakBytes.data(), tweakBytes.size())) {
+            secp256k1_context_destroy(ctx);
+            throw std::runtime_error("Failed to parse public key");
+        }
+        if (!secp256k1_ec_pubkey_tweak_mul(ctx, &ecdhSecret, scanPrivBytes.data())) {
+            secp256k1_context_destroy(ctx);
+            throw std::runtime_error("Failed to tweak pub key");
+        }
+        std::vector<unsigned char> result = serializePubkey(ctx, ecdhSecret);
+
+        resultKeys.push_back(result);
+    }
+
+    secp256k1_context_destroy(ctx);
+
+    return resultKeys;
+}
+
 
 void runBenchSelf(const std::string &scanPrivHex,
-             const std::string &spendPubHex,
-             const std::vector<std::string> &tweakHexes,
-             const std::vector<std::string> &labelHexes,
-             const int &iterations) {
+                  const std::string &spendPubHex,
+                  const std::vector<std::string> &tweakHexes,
+                  const std::vector<std::string> &labelHexes,
+                  const int &iterations) {
     auto start = std::chrono::high_resolution_clock::now(); // Start the timer
 
     for (int i = 0; i < iterations; ++i) {
-        std::vector<std::vector<unsigned char>> pubKeys = getPubKeysBasedOnTweaks(scanPrivHex, spendPubHex, tweakHexes, labelHexes,0);
+        std::vector<std::vector<unsigned char>> pubKeys = getPubKeysBasedOnTweaks(scanPrivHex, spendPubHex, tweakHexes,
+                                                                                  labelHexes, 0);
     }
 
     auto end = std::chrono::high_resolution_clock::now(); // End the timer
@@ -171,14 +221,35 @@ void runBenchSelf(const std::string &scanPrivHex,
     std::cout << "Elapsed time: " << elapsed.count() << " seconds" << std::endl; // Output the elapsed time
 }
 
+void runBenchSelfECDHSecret(const std::string &scanPrivHex,
+                            const std::string &spendPubHex,
+                            const std::vector<std::string> &tweakHexes,
+                            const std::vector<std::string> &labelHexes,
+                            const int &iterations) {
+
+    auto start = std::chrono::high_resolution_clock::now(); // Start the timer
+
+    for (int i = 0; i < iterations; ++i) {
+        std::vector<std::vector<unsigned char>> secrets = getSharedSecretsBasedOnTweaksSelf(scanPrivHex, spendPubHex,
+                                                                                            tweakHexes, labelHexes);
+    }
+
+    auto end = std::chrono::high_resolution_clock::now(); // End the timer
+    std::chrono::duration<double> elapsed = end - start; // Calculate the elapsed time
+
+    std::cout << "Elapsed time: " << elapsed.count() << " seconds" << std::endl;
+}
+
+
 void compareResultsSelf(const std::string &scanPrivHex,
-             const std::string &spendPubHex,
-             const std::vector<std::string> &tweakHexes,
-             const std::vector<std::string> &labelHexes) {
+                        const std::string &spendPubHex,
+                        const std::vector<std::string> &tweakHexes,
+                        const std::vector<std::string> &labelHexes) {
 
-    std::vector< std::vector<unsigned char>> pubKeys = getPubKeysBasedOnTweaks(scanPrivHex, spendPubHex, tweakHexes, labelHexes,0);
+    std::vector<std::vector<unsigned char>> pubKeys = getPubKeysBasedOnTweaks(scanPrivHex, spendPubHex, tweakHexes,
+                                                                              labelHexes, 0);
 
-    for (const  std::vector<unsigned char>& pubkey: pubKeys) {
+    for (const std::vector<unsigned char> &pubkey: pubKeys) {
         std::cout << bytesToHex(pubkey) << std::endl;
     }
 }

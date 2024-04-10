@@ -72,7 +72,7 @@ std::vector<std::vector<unsigned char>> getPubKeysBasedOnTweaks(
             throw std::runtime_error("Failed to compute output pubkey");
         }
 
-        unsigned char P_output_bytes[33] = {}; ;
+        unsigned char P_output_bytes[33] = {};;
 
         if (!secp256k1_xonly_pubkey_serialize(ctx, P_output_bytes, &P_output_xonly)) {
             secp256k1_context_destroy(ctx);
@@ -107,17 +107,72 @@ std::vector<std::vector<unsigned char>> getPubKeysBasedOnTweaks(
     return resultKeys;
 }
 
+std::vector<std::vector<unsigned char>> getSharedSecretsBasedOnTweaksModule(
+        const std::vector<unsigned char> &scanPrivBytes,
+        const std::vector<unsigned char> &spendPubBytes,
+        const std::vector<secp256k1_pubkey> &tweaks) {
+
+    secp256k1_context *ctx = secp256k1_context_create(SECP256K1_CONTEXT_VERIFY);
+    std::vector<std::vector<unsigned char>> resultKeys;
+
+    for (const secp256k1_pubkey &public_component: tweaks) {
+
+        unsigned char ecdhSecret[33] = {};
+
+        if (!secp256k1_silentpayments_create_shared_secret(ctx, ecdhSecret, &public_component, scanPrivBytes.data(),
+                                                           NULL)) {
+            secp256k1_context_destroy(ctx);
+            throw std::runtime_error("Failed to compute shared secret");
+        }
+        std::vector<unsigned char> secretVector(std::begin(ecdhSecret), std::end(ecdhSecret));
+
+        resultKeys.push_back(secretVector);
+    }
+
+    secp256k1_context_destroy(ctx);
+
+    return resultKeys;
+}
+
+std::vector<std::vector<unsigned char>> getSharedSecretsBasedOnTweaksModuleConstTime(
+        const std::vector<unsigned char> &scanPrivBytes,
+        const std::vector<unsigned char> &spendPubBytes,
+        const std::vector<secp256k1_pubkey> &tweaks) {
+
+    secp256k1_context *ctx = secp256k1_context_create(SECP256K1_CONTEXT_VERIFY);
+
+    std::vector<std::vector<unsigned char>> resultKeys;
+
+    for (const secp256k1_pubkey &public_component: tweaks) {
+
+        unsigned char ecdhSecret[33] = {};
+
+        if (!secp256k1_silentpayments_create_shared_secret_const_time(ctx, ecdhSecret, &public_component,
+                                                                      scanPrivBytes.data(), NULL)) {
+            secp256k1_context_destroy(ctx);
+            throw std::runtime_error("Failed to compute shared secret");
+        }
+        std::vector<unsigned char> secretVector(std::begin(ecdhSecret), std::end(ecdhSecret));
+
+        resultKeys.push_back(secretVector);
+    }
+
+    secp256k1_context_destroy(ctx);
+
+    return resultKeys;
+}
+
 void runBenchModule(const std::string &scanPrivHex,
-                  const std::string &spendPubHex,
-                  const std::vector<std::string> &tweakHexes,
-                  const std::vector<std::string> &labelHexes,
-                  const int &iterations) {
+                    const std::string &spendPubHex,
+                    const std::vector<std::string> &tweakHexes,
+                    const std::vector<std::string> &labelHexes,
+                    const int &iterations) {
 
     auto start = std::chrono::high_resolution_clock::now(); // Start the timer
 
     for (int i = 0; i < iterations; ++i) {
         std::vector<std::vector<unsigned char>> pubKeys = getPubKeysBasedOnTweaks(scanPrivHex, spendPubHex, tweakHexes,
-                                                                        labelHexes);
+                                                                                  labelHexes);
     }
 
     auto end = std::chrono::high_resolution_clock::now(); // End the timer
@@ -126,14 +181,55 @@ void runBenchModule(const std::string &scanPrivHex,
     std::cout << "Elapsed time: " << elapsed.count() << " seconds" << std::endl;
 }
 
+void runBenchModuleECDHSecret(const std::vector<unsigned char> &scanPrivBytes,
+                              const std::vector<unsigned char> &spendPubBytes,
+                              const std::vector<secp256k1_pubkey> &tweaks,
+                              const int &iterations) {
+
+    auto start = std::chrono::high_resolution_clock::now(); // Start the timer
+
+    for (int i = 0; i < iterations; ++i) {
+        std::vector<std::vector<unsigned char>> secrets = getSharedSecretsBasedOnTweaksModule(scanPrivBytes,
+                                                                                              spendPubBytes,
+                                                                                              tweaks);
+    }
+
+    auto end = std::chrono::high_resolution_clock::now(); // End the timer
+    std::chrono::duration<double> elapsed = end - start; // Calculate the elapsed time
+
+    std::cout << "Elapsed time: " << elapsed.count() << " seconds" << std::endl;
+}
+
+
+void runBenchModuleECDHSecretConstTime(const std::vector<unsigned char> &scanPrivBytes,
+                                       const std::vector<unsigned char> &spendPubBytes,
+                                       const std::vector<secp256k1_pubkey> &tweaks,
+                                       const int &iterations) {
+
+    auto start = std::chrono::high_resolution_clock::now(); // Start the timer
+
+    for (int i = 0; i < iterations; ++i) {
+        std::vector<std::vector<unsigned char>> secrets = getSharedSecretsBasedOnTweaksModuleConstTime(scanPrivBytes,
+                                                                                                       spendPubBytes,
+                                                                                                       tweaks);
+    }
+
+    auto end = std::chrono::high_resolution_clock::now(); // End the timer
+    std::chrono::duration<double> elapsed = end - start; // Calculate the elapsed time
+
+    std::cout << "Elapsed time: " << elapsed.count() << " seconds" << std::endl;
+}
+
+
 void compareResultsModule(const std::string &scanPrivHex,
                           const std::string &spendPubHex,
                           const std::vector<std::string> &tweakHexes,
                           const std::vector<std::string> &labelHexes) {
 
-    std::vector<std::vector<unsigned char>> pubKeys = getPubKeysBasedOnTweaks(scanPrivHex, spendPubHex, tweakHexes, labelHexes);
+    std::vector<std::vector<unsigned char>> pubKeys = getPubKeysBasedOnTweaks(scanPrivHex, spendPubHex, tweakHexes,
+                                                                              labelHexes);
 
-    for (const std::vector<unsigned char>& pubkey: pubKeys) {
+    for (const std::vector<unsigned char> &pubkey: pubKeys) {
         std::cout << bytesToHex(pubkey) << std::endl;
     }
 }

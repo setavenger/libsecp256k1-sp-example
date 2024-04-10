@@ -1,0 +1,14 @@
+const_time,simple_mult
+23.6592,16.6942
+20.414,16.3449
+20.0255,16.6037
+20.087,16.2178
+19.8472,16.2061
+20.0106,16.2182
+19.6001,15.9028
+19.8197,15.983
+19.7288,16.2253
+19.5411,15.3919
+
+===
+10 runs 100 iterations, one iteration includes 861 tweaks; direct ecdh comparison for libsecp256k1 SP-module
